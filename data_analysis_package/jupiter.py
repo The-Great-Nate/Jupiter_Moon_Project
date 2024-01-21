@@ -48,17 +48,17 @@ class Moons:
         else:
             return self.database[col_1].corr(self.database[col_2])
 
-    def plot(self, col_1, col_2):
-        if pd.api.types.infer_dtype(self.database[col_1]) == "string" or pd.api.types.infer_dtype(
-                self.database[col_2]) == "string":
-            print("Only integer/float based columns can be plotted")
+    def plot_relationship(self, col_1, col_2):
+        if col_1 not in list(self.database.columns) or col_2 not in list(self.database.columns):
+            print("Enter a valid column name in the database")
+            return
+        if pd.to_numeric(self.database[col_1], errors = "coerce").notna().all() == False and pd.to_numeric(self.database[col_2], errors = "coerce").notna().all() == False:
+            print("Comparing 2 categorical variables")
+            sns.countplot(data=self.database, x=col_1, hue=col_2)
+        elif pd.to_numeric(self.database[col_1], errors = "coerce").notna().all() == False or pd.to_numeric(self.database[col_2], errors = "coerce").notna().all() == False:
+            sns.catplot(data=self.database, x=col_1, y=col_2, kind="box", aspect=1.5)
         else:
-            self.database.plot(col_1, col_2, xlabel=col_1, ylabel=col_2, title=f"{col_2}, against {col_1}")
-
-    def scatter(self, col_1, col_2):
-        if pd.api.types.infer_dtype(self.database[col_1]) == "string" or pd.api.types.infer_dtype(self.database[col_2]) == "string":
-            print("Only integer/float based columns can be plotted")
-        else:
-            self.database.plot.scatter(col_1, col_2, xlabel = col_1, ylabel = col_2, title = f"{col_2}, against {col_1}")
-
+            plot = sns.relplot(data=self.database, x=col_1, y=col_2)
+            plot.fig.suptitle(f"{col_1} x {col_2}", fontsize=16)
+            plot.fig.subplots_adjust(top=0.9)
 
