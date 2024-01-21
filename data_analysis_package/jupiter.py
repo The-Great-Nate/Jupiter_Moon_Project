@@ -62,3 +62,13 @@ class Moons:
             plot.fig.suptitle(f"{col_1} x {col_2}", fontsize=16)
             plot.fig.subplots_adjust(top=0.9)
 
+    def pairwise_plots(self, hue = None):
+        sns.pairplot(self.database, hue = hue)
+
+    def filter_for_characteristic(self, column, characteristic):
+        if column not in list(self.database.columns):
+            print("This is not a column in the database")
+            return
+        else:
+            return self.database[self.database[column] == characteristic]
+
