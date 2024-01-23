@@ -20,14 +20,22 @@ class Moons:
         print(f"Number of records: {len(self.__database)}")
         print(f"Column Names: {list(self.__database.columns)}")
 
+    def return_col_names(self):
+        return list(self.__database.columns)
+
     def check_missing_values(self):
         return self.__database.isnull().sum()
 
     def return_complete_records(self):
         return self.__database.dropna()
 
-    def summary(self):
-        return self.__database.describe()
+    def summary(self, df=None):
+        if df is None:
+            df = self.__database
+        else:
+            pass
+        return df.describe()
+
 
     def corr(self):
         return self.__database.corr(numeric_only = True)
@@ -59,7 +67,7 @@ class Moons:
         filter_nan = self.__database.dropna(subset=[col_1, col_2])
         if pd.to_numeric(filter_nan[col_1], errors = "coerce").notna().all() == False and pd.to_numeric(filter_nan[col_2], errors = "coerce").notna().all() == False:
             print("Comparing 2 categorical variables")
-            sns.countplot(data=self.__database, x=col_1, hue=col_2, kde = True)
+            sns.countplot(data=self.__database, x=col_1, hue=col_2)
         elif pd.to_numeric(filter_nan[col_1], errors = "coerce").notna().all() == False or pd.to_numeric(filter_nan[col_2], errors = "coerce").notna().all() == False:
             sns.catplot(data=self.__database, x=col_1, y=col_2, kind="box", aspect=1.5, hue = hue)
         else:
