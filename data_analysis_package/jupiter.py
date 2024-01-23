@@ -13,7 +13,7 @@ class Moons:
         self.__database = pd.read_sql(query, connectable)
 
     def display_df(self):
-        display(self.__database)
+        return self.__database
 
     def display_data_info(self):
         print(f"Number of fields: {len(self.__database.columns)}")
@@ -35,7 +35,6 @@ class Moons:
         else:
             pass
         return df.describe()
-
 
     def corr(self):
         return self.__database.corr(numeric_only = True)
@@ -84,4 +83,8 @@ class Moons:
             return
         else:
             return self.__database[self.__database[column] == characteristic]
+
+    def return_unique_values(self, col):
+        return self.__database[col].unique()
+
 
