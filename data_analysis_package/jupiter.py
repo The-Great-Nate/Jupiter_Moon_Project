@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from IPython.display import display, HTML
+from sklearn import linear_model
 
 
 class Moons:
@@ -86,5 +87,31 @@ class Moons:
 
     def return_unique_values(self, col):
         return self.__database[col].unique()
+
+    def get_model(self, col_1, col_2):
+        model = linear_model.LinearRegression(fit_intercept=True)
+        training_data = self.__database[[col_1]]
+        y_series = self.__database[col_2]
+        model.fit(training_data, y_series)
+        return model, col_1, col_2
+
+    def get_model_parameters(self, model:tuple):
+        reg_model = model[0]
+        data_for_predict = self.__database[[model[1]]]
+        y_col = self.__database[model[2]]
+        if isinstance(model, linear_model.LinearRegression):
+            return "This is not a LinearRegression object"
+        else:
+            self.__database["prediction"] = reg_model.predict(data_for_predict)
+            print("prediction data added as column \"prediction\"")
+            print("Line gradient from model: ", reg_model.coef_[0])
+            print("Line intercept from model:", reg_model.intercept_)
+            plt.scatter(data_for_predict, y_col, label = f"{model[1]}", marker = "x")
+            plt.plot(data_for_predict, self.__database["prediction"], label = f"Prediction", color = "orange")
+            plt.title(f"{model[1]} & prediction x {model[1]}")
+            plt.xlabel(model[1])
+            plt.ylabel(model[2])
+            plt.legend()
+            return reg_model.coef_[0], reg_model.intercept_
 
 
