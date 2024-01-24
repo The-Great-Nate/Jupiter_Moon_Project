@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from IPython.display import display, HTML
 from sklearn import linear_model
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import r2_score, mean_squared_error
 
 
 class Moons:
@@ -13,8 +15,11 @@ class Moons:
         query = f"SELECT * FROM {table}"
         self.__database = pd.read_sql(query, connectable)
 
-    def display_df(self):
+    def get_df(self):
         return self.__database
+
+    def set_df(self, df):
+        self.__database = df
 
     def display_data_info(self):
         print(f"Number of fields: {len(self.__database.columns)}")
@@ -90,28 +95,49 @@ class Moons:
 
     def get_model(self, col_1, col_2):
         model = linear_model.LinearRegression(fit_intercept=True)
-        training_data = self.__database[[col_1]]
-        y_series = self.__database[col_2]
-        model.fit(training_data, y_series)
-        return model, col_1, col_2
+        x = self.__database[[col_1]]
+        y = self.__database[col_2]
+        x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=42)
+        model.fit(x_train, y_train)
+        return model, x_test, y_test, col_1, col_2
 
-    def get_model_parameters(self, model:tuple):
+    @staticmethod
+    def get_model_parameters(model):
+        return model.coef_[0], model.intercept_
+
+    @staticmethod
+    def predict(model, x_test):
+        pred = model.predict(x_test)
+        return pred
+
+    @staticmethod
+    def plot_prediction(model:tuple, pred):
         reg_model = model[0]
-        data_for_predict = self.__database[[model[1]]]
-        y_col = self.__database[model[2]]
-        if isinstance(model, linear_model.LinearRegression):
+        data_for_predict = model[1]
+        y_col = model[2]
+        if not isinstance(reg_model, linear_model.LinearRegression):
             return "This is not a LinearRegression object"
         else:
-            self.__database["prediction"] = reg_model.predict(data_for_predict)
-            print("prediction data added as column \"prediction\"")
-            print("Line gradient from model: ", reg_model.coef_[0])
-            print("Line intercept from model:", reg_model.intercept_)
-            plt.scatter(data_for_predict, y_col, label = f"{model[1]}", marker = "x")
-            plt.plot(data_for_predict, self.__database["prediction"], label = f"Prediction", color = "orange")
-            plt.title(f"{model[1]} & prediction x {model[1]}")
-            plt.xlabel(model[1])
-            plt.ylabel(model[2])
+            plt.scatter(data_for_predict, y_col, label = f"{model[3]} test data", marker = "x")
+            plt.plot(data_for_predict, pred, label = f"Prediction", color = "orange")
+            plt.title(f"{model[3]} & prediction x {model[3]}")
+            plt.xlabel(model[3])
+            plt.ylabel(model[4])
             plt.legend()
-            return reg_model.coef_[0], reg_model.intercept_
 
+    @staticmethod
+    def plot_residuals(model:tuple, pred):
+        plt.plot(model[1], model[2] - pred, '.')
+        # Add a horizontal line at zero to guide the eye
+        plt.axhline(0, color='k', linestyle='dashed')
+        # Add axis labels
+        plt.xlabel(model[3])
+        plt.ylabel("Residuals")
 
+    @staticmethod
+    def output_model_worth(model:tuple, pred):
+        r2 = r2_score(model[2], pred)
+        rmse = mean_squared_error(model[2], pred, squared = False)
+        print(f"r2_score: {r2}")
+        print(f"root mean squared error: {rmse}")
+        return r2, rmse
