@@ -1,3 +1,5 @@
+from typing import Tuple, Any
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -6,9 +8,11 @@ from IPython.display import display, HTML
 from sklearn import linear_model
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score, mean_squared_error
+from data_analysis_package.data_analysis import DataAnalysis
+from typing import Union
 
 
-class Moons:
+class Moons(DataAnalysis):
     """
     This class holds a database regarding the moons which orbit a planet.
     """
@@ -107,7 +111,7 @@ class Moons:
         plt.title("Correlation Heatmap")
         plt.show()
 
-    def return_moon_data(self, name: str) -> None | pd.DataFrame:
+    def return_moon_data(self, name: str) -> Union[None,pd.DataFrame]:
         """
         Returns record of moon name is assigned to
         :param name: moon name to return record for.
@@ -119,7 +123,7 @@ class Moons:
         else:
             return self.__database[self.__database["moon"] == name]
 
-    def return_corr(self, col_1: str, col_2: str) -> None | int:
+    def return_corr(self, col_1: str, col_2: str) -> Union[None,int]:
         """
         Returns pearsons r value between two variables
         :param col_1: column 1
@@ -233,7 +237,7 @@ class Moons:
         return model, x_test, y_test, col_1, col_2
 
     @staticmethod
-    def get_model_parameters(model: tuple) -> str | tuple:
+    def get_model_parameters(model: tuple) -> Union[str,tuple]:
         """
         Returns tuple of either warning message (String) or (int)
         :param model: Tuple generated from self.get_model(). In order,
@@ -250,7 +254,7 @@ class Moons:
         return model_obj.coef_[0], model_obj.intercept_
 
     @staticmethod
-    def predict(model:tuple) -> str | pd.array:
+    def predict(model:tuple) -> Union[str,tuple]:
         """
         Returns prediction from inputted model tuple generated from get_model()
         :param model: Tuple generated from self.get_model(). In order,
@@ -267,7 +271,7 @@ class Moons:
         return pred
 
     @staticmethod
-    def plot_prediction(model:tuple, pred: pd.array) -> str | None:
+    def plot_prediction(model:tuple, pred: [int]) -> Union[str,None]:
         """
         Returns either warning message or plots model results and observed values against X set as a scatter and line
         plot respectively.
@@ -294,7 +298,7 @@ class Moons:
         plt.legend()
 
     @staticmethod
-    def plot_residuals(model:tuple, pred: pd.array) -> None:
+    def plot_residuals(model:tuple, pred: [int]) -> None:
         """
         Plots residuals between observed target values and predicted target values against X test data.
         This is calculated through subtracting the observed target values by the predicted.
@@ -315,7 +319,7 @@ class Moons:
         plt.ylabel("Residuals")
 
     @staticmethod
-    def output_model_worth(model:tuple, pred: pd.array) -> (int):
+    def output_model_worth(model:tuple, pred: [int]) -> tuple[float | Any, float | Any]:
         """
         Returns R^2 and Root Mean Squared Error. Methods imported from sklearn library
         :param model: Tuple generated from self.get_model(). In order,
