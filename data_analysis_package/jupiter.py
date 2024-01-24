@@ -93,8 +93,12 @@ class Moons:
     def return_unique_values(self, col):
         return self.__database[col].unique()
 
+    @staticmethod
+    def return_central_mass(gradient):
+        return (4*np.pi**2)/(6.67E-11 * gradient)
+
     def get_model(self, col_1, col_2):
-        model = linear_model.LinearRegression(fit_intercept=True)
+        model = linear_model.LinearRegression(fit_intercept = False)
         x = self.__database[[col_1]]
         y = self.__database[col_2]
         x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=42)
@@ -103,15 +107,22 @@ class Moons:
 
     @staticmethod
     def get_model_parameters(model):
-        return model.coef_[0], model.intercept_
+        if not isinstance(model[0], linear_model.LinearRegression):
+            return "This is not a LinearRegression object"
+        model_obj = model[0]
+        return model_obj.coef_[0], model_obj.intercept_
 
     @staticmethod
-    def predict(model, x_test):
-        pred = model.predict(x_test)
+    def predict(model:tuple):
+        if not isinstance(model[0], linear_model.LinearRegression):
+            return "This is not a LinearRegression object"
+        pred = model[0].predict(model[1])
         return pred
 
     @staticmethod
     def plot_prediction(model:tuple, pred):
+        if not isinstance(model[0], linear_model.LinearRegression):
+            return "This is not a LinearRegression object"
         reg_model = model[0]
         data_for_predict = model[1]
         y_col = model[2]
